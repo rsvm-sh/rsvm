@@ -1,57 +1,59 @@
 # rsvm — Rust Version Manager
 
-按 [nvm](https://github.com/nvm-sh/nvm) 的方式管理 Rust：自己下载官方独立安装包，装进 `~/.rsvm/versions/`，只改**当前 shell** 的 `PATH`。不依赖 rustup，也不会调用 `rustup default`。
+**English** | [简体中文](README.zh-CN.md)
 
-Rust 没有 Node 那种 LTS 通道。官方只有三条发布线，rsvm 都支持装**当前最新版**：
+Manage Rust the [nvm](https://github.com/nvm-sh/nvm) way: download official standalone installers into `~/.rsvm/versions/`, and change `PATH` for the **current shell only**. No rustup, and never calls `rustup default`.
 
-| 通道 | 命令 | 说明 |
-|------|------|------|
-| **stable** | `rsvm install stable` | 生产默认，约每 6 周发一版 |
-| **beta** | `rsvm install beta` | 下一个 stable 的预发布 |
-| **nightly** | `rsvm install nightly` | 每日构建；目录名带日期，方便第二天再装新的 |
+Rust has no Node-style LTS channel. There are three official release lines; rsvm can install the **current latest** of each:
 
-也可以钉死具体版本：`rsvm install 1.85.0`。
+| Channel | Command | Notes |
+|---------|---------|-------|
+| **stable** | `rsvm install stable` | Production default; a new release about every 6 weeks |
+| **beta** | `rsvm install beta` | Preview of the next stable |
+| **nightly** | `rsvm install nightly` | Daily builds; directory names include the date so you can install a new one the next day |
 
-## 安装
+You can also pin a specific version: `rsvm install 1.85.0`.
 
-需要 `curl`、`tar`。在项目目录执行：
+## Install
+
+Requires `curl` and `tar`. From the project directory:
 
 ```bash
 bash install_sh.sh
 ```
 
-脚本会把文件拷到 `~/.rsvm/`（`rsvm.sh`、`rsvm-exec`、`bash_completion`），并在 shell 配置里写入懒加载片段。zsh 用户一般是 `~/.zshrc`。
+The script copies files into `~/.rsvm/` (`rsvm.sh`, `rsvm-exec`, `bash_completion`) and writes a lazy-load snippet into your shell config. For zsh that is usually `~/.zshrc`.
 
-然后：
+Then:
 
 ```bash
-source ~/.zshrc   # 或新开一个终端
+source ~/.zshrc   # or open a new terminal
 rsvm help
 ```
 
-默认目录可用环境变量改：
+Override the default directory with:
 
 ```bash
 export RSVM_DIR="$HOME/.rsvm"
 ```
 
-## 三个通道：装最新版
+## Three channels: install the latest
 
 ```bash
-rsvm install stable     # 当前 latest stable，例如 1.98.0
-rsvm install beta       # 当前 latest beta，例如 1.99.0-beta.3
-rsvm install nightly    # 当天 nightly，例如 1.100.0-nightly-2026-08-30
+rsvm install stable     # current latest stable, e.g. 1.98.0
+rsvm install beta       # current latest beta, e.g. 1.99.0-beta.3
+rsvm install nightly    # today's nightly, e.g. 1.100.0-nightly-2026-08-30
 ```
 
-行为：
+What happens:
 
-1. 向 `https://static.rust-lang.org/dist/channel-rust-<channel>.toml` 查询**此刻**的最新版（不会沿用旧 alias）
-2. 下载官方 standalone tarball，校验 SHA256
-3. 安装到 `~/.rsvm/versions/<具体版本>/`
-4. 把该版本的 `bin` 插到当前 shell 的 `PATH` 前面
-5. 更新 alias：`stable` / `beta` / `nightly` 指向刚装的具体版本
+1. Query `https://static.rust-lang.org/dist/channel-rust-<channel>.toml` for the **latest right now** (does not reuse a stale alias)
+2. Download the official standalone tarball and verify SHA256
+3. Install into `~/.rsvm/versions/<exact-version>/`
+4. Prepend that version's `bin` to the current shell's `PATH`
+5. Update aliases: `stable` / `beta` / `nightly` point at the version just installed
 
-已经装过同一具体版本时会跳过下载，但仍会 `use` 并刷新通道 alias。
+If that exact version is already installed, the download is skipped, but rsvm still `use`s it and refreshes the channel alias.
 
 ```bash
 rsvm use stable
@@ -59,65 +61,65 @@ rsvm use beta
 rsvm use nightly
 ```
 
-`use` 走 alias：用的是**上次** `install <通道>` 记下的版本，不会隐式再下一份。要跟上通道最新，再跑一次 `rsvm install <通道>`。
+`use` follows the alias: it uses the version recorded by the **last** `install <channel>`, and will not download another copy. To pick up the latest on a channel, run `rsvm install <channel>` again.
 
-## 常用命令
+## Common commands
 
 ```bash
-rsvm install 1.85.0              # 指定版本
-rsvm install --default stable    # 装完同时设为 default
-rsvm install --save 1.85.0       # 写入当前目录 .rust-version
-rsvm install                     # 不传版本时读 .rust-version
+rsvm install 1.85.0              # specific version
+rsvm install --default stable    # install and set as default
+rsvm install --save 1.85.0       # write .rust-version in the current directory
+rsvm install                     # no version: read .rust-version
 
-rsvm uninstall 1.85.0            # 只删 ~/.rsvm/versions 里的副本
-rsvm uninstall 1.85              # 匹配本地已装的 1.85.x
+rsvm uninstall 1.85.0            # delete the copy under ~/.rsvm/versions
+rsvm uninstall 1.85              # match an installed 1.85.x
 rsvm uninstall default
 
 rsvm use 1.85.0
-rsvm use                         # 读 .rust-version
+rsvm use                         # read .rust-version
 rsvm current
 rsvm which 1.85.0
-rsvm list                        # 已安装版本 + system + alias（nvm list 风格）
-rsvm list-remote                 # 全部远端版本，从旧到新
-rsvm list-remote 50              # 只显示前 50 个
-rsvm use system                  # 不用 rsvm 的 PATH，回到系统/rustup 的 rustc
-rsvm alias default system        # 新终端默认用 system
+rsvm list                        # installed versions + system + aliases (nvm list style)
+rsvm list-remote                 # all remote versions, oldest first
+rsvm list-remote 50              # first 50 only
+rsvm use system                  # drop rsvm from PATH; fall back to system/rustup rustc
+rsvm alias default system        # new terminals default to system
 
 rsvm alias default 1.85.0
-rsvm alias default 1.85      # 已安装的最新 1.85.x（和 nvm alias default 18.12 一样）
-rsvm alias default 1         # 已安装的最新 1.x（和 nvm alias default 18 一样）
+rsvm alias default 1.85      # latest installed 1.85.x (same as nvm alias default 18.12)
+rsvm alias default 1         # latest installed 1.x (same as nvm alias default 18)
 rsvm unalias default
 
 rsvm run 1.85.0 cargo test
 rsvm-exec 1.85.0 cargo build
-rsvm-exec -- cargo build         # 读最近的 .rust-version
+rsvm-exec -- cargo build         # read nearest .rust-version
 
 rsvm unload
 ```
 
-当前正在用的版本不能卸载，需要先 `rsvm use` 到别的版本。卸载会删掉指向该版本的 alias，以及 `~/.rsvm/cache/` 里对应的 tarball。
+You cannot uninstall the version currently in use; `rsvm use` another version first. Uninstall also removes aliases that point at that version, and the matching tarball in `~/.rsvm/cache/`.
 
 ## `.rust-version`
 
-和 nvm 的 `.nvmrc` 一样，从当前目录往上找：
+Like nvm's `.nvmrc`. Walks up from the current directory:
 
 ```
 1.85.0
 ```
 
-也可以写 `stable` / `beta` / `nightly`。空行和 `#` 注释会忽略。
+`stable` / `beta` / `nightly` are also valid. Blank lines and `#` comments are ignored.
 
-- `rsvm install` / `rsvm use` 不传版本时读这个文件
-- `rsvm-exec --` 同样读取
+- `rsvm install` / `rsvm use` with no version read this file
+- `rsvm-exec --` does the same
 
-## 目录
+## Layout
 
 ```
 ~/.rsvm/
   rsvm.sh
   rsvm-exec
   bash_completion
-  versions/          # 每个版本一份完整 toolchain
+  versions/          # a full toolchain per version
     1.98.0/bin/rustc
     1.99.0-beta.3/
     1.100.0-nightly-2026-08-30/
@@ -126,26 +128,26 @@ rsvm unload
     stable
     beta
     nightly
-  cache/             # 下载的 dist tarball
+  cache/             # downloaded dist tarballs
 ```
 
-## 环境变量
+## Environment variables
 
-| 变量 | 默认 | 含义 |
-|------|------|------|
-| `RSVM_DIR` | `~/.rsvm` | rsvm 主目录 |
-| `RSVM_DIST_MIRROR` | `https://static.rust-lang.org/dist` | 发行包镜像 |
+| Variable | Default | Meaning |
+|----------|---------|---------|
+| `RSVM_DIR` | `~/.rsvm` | rsvm home directory |
+| `RSVM_DIST_MIRROR` | `https://static.rust-lang.org/dist` | Dist tarball mirror |
 
-## 和 rustup / nvm 的差别
+## Differences from rustup / nvm
 
-- **相对 rustup**：rsvm 把 toolchain 放在自己的 `versions/` 里，切换只影响当前 shell，不改 rustup 的全局 default。不必先装 rustup。
-- **相对 nvm**：`install` / `uninstall` / `use` / alias / 项目版本文件 对齐 nvm。`rsvm alias default 1.85` 会保存模式 `1.85`，`rsvm use default` 时再解析成当前已安装的最新 `1.85.x`。Rust 没有 LTS，所以没有 `--lts`；生产对应的是 `stable`。
-- nightly 带日期是为了同一大版本号（例如 `1.100.0-nightly`）在不同天仍能各装一份。
+- **vs rustup**: rsvm keeps toolchains in its own `versions/` directory. Switching only affects the current shell; it does not change rustup's global default. rustup is not required.
+- **vs nvm**: `install` / `uninstall` / `use` / aliases / per-project version files follow nvm. `rsvm alias default 1.85` stores the pattern `1.85`; `rsvm use default` then resolves to the latest installed `1.85.x`. Rust has no LTS, so there is no `--lts`; production maps to `stable`.
+- Nightlies include a date so the same major.minor.patch (e.g. `1.100.0-nightly`) can still be installed once per day.
 
-## 测试
+## Tests
 
 ```bash
 bash test/test_suite.sh
 ```
 
-不访问网络；通道安装用本地 stub 的版本索引。
+No network. Channel installs use a local stub version index.
