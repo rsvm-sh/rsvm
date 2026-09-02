@@ -1,6 +1,7 @@
 # rsvm — Rust Version Manager
 
 [![CI](https://github.com/rsvm-sh/rsvm/actions/workflows/ci.yml/badge.svg)](https://github.com/rsvm-sh/rsvm/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **English** | [简体中文](README.zh-CN.md)
 
@@ -18,10 +19,14 @@ You can also pin a specific version: `rsvm install 1.85.0`.
 
 ## Install
 
-Requires `curl` and `tar`. From the project directory:
+Requires `curl` and `tar`. `git` is used when available (otherwise the installer downloads files with `curl`).
 
 ```bash
-bash install_sh.sh
+curl -o- https://raw.githubusercontent.com/rsvm-sh/rsvm/v0.1.0/install_sh.sh | bash
+```
+
+```bash
+wget -qO- https://raw.githubusercontent.com/rsvm-sh/rsvm/v0.1.0/install_sh.sh | bash
 ```
 
 The script copies files into `~/.rsvm/` (`rsvm.sh`, `rsvm-exec`, `bash_completion`) and writes a lazy-load snippet into your shell config. For zsh that is usually `~/.zshrc`.
@@ -29,7 +34,7 @@ The script copies files into `~/.rsvm/` (`rsvm.sh`, `rsvm-exec`, `bash_completio
 Then:
 
 ```bash
-source ~/.zshrc   # or open a new terminal
+source ~/.zshrc   # or ~/.bashrc, or open a new terminal
 rsvm help
 ```
 
@@ -37,6 +42,13 @@ Override the default directory with:
 
 ```bash
 export RSVM_DIR="$HOME/.rsvm"
+curl -o- https://raw.githubusercontent.com/rsvm-sh/rsvm/v0.1.0/install_sh.sh | bash
+```
+
+From a local checkout:
+
+```bash
+bash install_sh.sh
 ```
 
 ## Three channels: install the latest
@@ -153,3 +165,7 @@ bash test/test_suite.sh
 ```
 
 No network. Channel installs use a local stub version index.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

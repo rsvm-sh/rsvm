@@ -5,8 +5,6 @@ on:
     branches: [main]
     tags: ["v*"]
   pull_request:
-  release:
-    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -41,3 +39,37 @@ jobs:
 
       - name: Test
         run: bash test/test_suite.sh
+
+  release:
+    name: GitHub Release
+    needs: test
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release $GITHUB_REF_NAME already exists"
+            exit 0
+          fi
+          gh release create "$GITHUB_REF_NAME" \
+            --title "rsvm $GITHUB_REF_NAME" \
+            --notes "$(cat <<EOF
+          nvm-style Rust version manager.
+
+          Install:
+
+          \`\`\`bash
+          curl -o- https://raw.githubusercontent.com/rsvm-sh/rsvm/${GITHUB_REF_NAME}/install_sh.sh | bash
+          \`\`\`
+
+          Then \`source ~/.zshrc\` (or \`~/.bashrc\`) and run \`rsvm help\`.
+          EOF
+          )"

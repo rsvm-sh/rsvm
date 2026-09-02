@@ -1,6 +1,7 @@
 # rsvm — Rust Version Manager
 
 [![CI](https://github.com/rsvm-sh/rsvm/actions/workflows/ci.yml/badge.svg)](https://github.com/rsvm-sh/rsvm/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 [English](README.md) | **简体中文**
 
@@ -18,10 +19,14 @@ Rust 没有 Node 那种 LTS 通道。官方只有三条发布线，rsvm 都支�
 
 ## 安装
 
-需要 `curl`、`tar`。在项目目录执行：
+需要 `curl` 和 `tar`。有 `git` 时用 git 拉取；否则用 `curl` 下载文件。
 
 ```bash
-bash install_sh.sh
+curl -o- https://raw.githubusercontent.com/rsvm-sh/rsvm/v0.1.0/install_sh.sh | bash
+```
+
+```bash
+wget -qO- https://raw.githubusercontent.com/rsvm-sh/rsvm/v0.1.0/install_sh.sh | bash
 ```
 
 脚本会把文件拷到 `~/.rsvm/`（`rsvm.sh`、`rsvm-exec`、`bash_completion`），并在 shell 配置里写入懒加载片段。zsh 用户一般是 `~/.zshrc`。
@@ -29,7 +34,7 @@ bash install_sh.sh
 然后：
 
 ```bash
-source ~/.zshrc   # 或新开一个终端
+source ~/.zshrc   # 或 ~/.bashrc，或新开一个终端
 rsvm help
 ```
 
@@ -37,6 +42,13 @@ rsvm help
 
 ```bash
 export RSVM_DIR="$HOME/.rsvm"
+curl -o- https://raw.githubusercontent.com/rsvm-sh/rsvm/v0.1.0/install_sh.sh | bash
+```
+
+从本地仓库安装：
+
+```bash
+bash install_sh.sh
 ```
 
 ## 三个通道：装最新版
@@ -153,3 +165,7 @@ bash test/test_suite.sh
 ```
 
 不访问网络；通道安装用本地 stub 的版本索引。
+
+## 许可证
+
+MIT，见 [LICENSE](LICENSE)。
