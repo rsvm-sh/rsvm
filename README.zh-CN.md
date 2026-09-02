@@ -1,5 +1,7 @@
 # rsvm — Rust Version Manager
 
+[![CI](https://github.com/rsvm-sh/rsvm/actions/workflows/ci.yml/badge.svg)](https://github.com/rsvm-sh/rsvm/actions/workflows/ci.yml)
+
 [English](README.md) | **简体中文**
 
 按 [nvm](https://github.com/nvm-sh/nvm) 的方式管理 Rust：自己下载官方独立安装包，装进 `~/.rsvm/versions/`，只改**当前 shell** 的 `PATH`。不依赖 rustup，也不会调用 `rustup default`。

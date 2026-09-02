@@ -1,5 +1,7 @@
 # rsvm — Rust Version Manager
 
+[![CI](https://github.com/rsvm-sh/rsvm/actions/workflows/ci.yml/badge.svg)](https://github.com/rsvm-sh/rsvm/actions/workflows/ci.yml)
+
 **English** | [简体中文](README.zh-CN.md)
 
 Manage Rust the [nvm](https://github.com/nvm-sh/nvm) way: download official standalone installers into `~/.rsvm/versions/`, and change `PATH` for the **current shell only**. No rustup, and never calls `rustup default`.
